@@ -7,6 +7,7 @@ import {
   Animated,
   StyleSheet,
 } from "react-native";
+import { Picker } from "@react-native-picker/picker";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { Task } from "../types/task";
@@ -14,8 +15,17 @@ import { fetchTasks, priorityColors } from "../services/taskService";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
+// 🔹 Estrategias de filtrado (Patrón Strategy)
+const filterStrategies = {
+  all: (tasks: Task[]) => tasks,
+  alta: (tasks: Task[]) => tasks.filter((task) => task.priority === "alta"),
+  media: (tasks: Task[]) => tasks.filter((task) => task.priority === "media"),
+  baja: (tasks: Task[]) => tasks.filter((task) => task.priority === "baja"),
+};
+
 const HomeScreen: React.FC<Props> = ({ navigation }) => {
   const [tasks, setTasks] = useState<Task[]>([]);
+  const [filter, setFilter] = useState<keyof typeof filterStrategies>("all");
   const fadeAnimations = useRef<{ [key: number]: Animated.Value }>({}).current;
 
   useEffect(() => {
@@ -50,12 +60,27 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     });
   };
 
+  // 🔹 Aplicar filtro de tareas
+  const filteredTasks = filterStrategies[filter](tasks);
+
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Lista de Tareas</Text>
 
+      {/* 🔹 Selector de prioridad */}
+      <Picker
+        selectedValue={filter}
+        onValueChange={(value) => setFilter(value)}
+        style={styles.picker}
+      >
+        <Picker.Item label="Todas" value="all" />
+        <Picker.Item label="Alta" value="alta" />
+        <Picker.Item label="Media" value="media" />
+        <Picker.Item label="Baja" value="baja" />
+      </Picker>
+
       <FlatList
-        data={tasks}
+        data={filteredTasks}
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => {
           if (!fadeAnimations[item.id]) {
@@ -125,6 +150,10 @@ const styles = StyleSheet.create({
     marginBottom: 10,
     textAlign: "center",
     color: "#000000",
+  },
+  picker: {
+    backgroundColor: "#ffffff",
+    marginBottom: 10,
   },
   taskContainer: {
     flexDirection: "row",
