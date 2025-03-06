@@ -14,6 +14,7 @@ export const fetchTasks = async (): Promise<Task[]> => {
       title: task.title,
       completed: task.completed,
       priority: getRandomPriority(),
+      subtasks: [] // Inicialmente sin subtareas
     }));
   } catch (error) {
     console.error("Error al obtener tareas:", error);
@@ -21,27 +22,29 @@ export const fetchTasks = async (): Promise<Task[]> => {
   }
 };
 
-// Exportamos prioridades para usarlas en HomeScreen
-export const priorityColors: Record<Priority, string> = {
-  alta: "#c1121f", // Rojo
-  media: "#ffc300", // Naranja
-  baja: "#31572c", // Verde
-};
-
-export const createTask = async (task: Omit<Task, "id">): Promise<Task | null> => {
+export const createTask = async (task: Task): Promise<Task | null> => {
   try {
     const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
       method: "POST",
-      body: JSON.stringify(task),
+      body: JSON.stringify({
+        ...task,
+        subtasks: task.subtasks || [] // Incluir subtareas si existen
+      }),
       headers: {
         "Content-type": "application/json; charset=UTF-8",
       },
     });
-
     const createdTask = await response.json();
-    return { ...task, id: createdTask.id || Date.now() }; // Asignamos un ID simulado
+    return { ...task, id: createdTask.id, subtasks: task.subtasks || [] };
   } catch (error) {
-    console.error("Error al agregar la tarea:", error);
+    console.error("Error al crear tarea:", error);
     return null;
   }
+};
+
+// Exportamos colores por prioridad para usarlas en la UI
+export const priorityColors: Record<Priority, string> = {
+  alta: "#c1121f", // Rojo
+  media: "#ffc300", // Naranja
+  baja: "#31572c", // Verde
 };

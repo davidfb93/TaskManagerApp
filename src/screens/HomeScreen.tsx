@@ -10,7 +10,7 @@ import {
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
 import { Task } from "../types/task";
-import { fetchTasks, priorityColors, getRandomPriority } from "../services/taskService";
+import { fetchTasks, priorityColors } from "../services/taskService";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
@@ -27,7 +27,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
   }, []);
 
   const addTask = (newTask: Task) => {
-    setTasks([{ ...newTask,  }, ...tasks]);
+    setTasks([{ ...newTask }, ...tasks]);
   };
 
   const editTask = (updatedTask: Task) => {
@@ -69,7 +69,18 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
                 { backgroundColor: priorityColors[item.priority], opacity: fadeAnimations[item.id] },
               ]}
             >
-              <Text style={styles.taskText}>{item.title}</Text>
+              <View style={styles.taskContent}>
+                <Text style={styles.taskText}>{item.title}</Text>
+                {item.subtasks && item.subtasks.length > 0 && (
+                  <View style={styles.subtasksContainer}>
+                    {item.subtasks.map((subtask, index) => (
+                      <Text key={index} style={styles.subtaskText}>
+                        - {typeof subtask === "string" ? subtask : subtask.title}
+                      </Text>
+                    ))}
+                  </View>
+                )}
+              </View>
               <View style={styles.buttonsContainer}>
                 <TouchableOpacity
                   onPress={() =>
@@ -127,10 +138,21 @@ const styles = StyleSheet.create({
     shadowOffset: { width: 0, height: 2 },
     elevation: 3,
   },
+  taskContent: {
+    flex: 1,
+  },
   taskText: {
     fontSize: 16,
-    flex: 1,
     color: "#ffffff",
+  },
+  subtasksContainer: {
+    marginTop: 5,
+    paddingLeft: 10,
+  },
+  subtaskText: {
+    fontSize: 14,
+    color: "#ffffff",
+    opacity: 0.8,
   },
   buttonsContainer: {
     flexDirection: "row",
