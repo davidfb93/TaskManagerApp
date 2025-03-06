@@ -13,6 +13,7 @@ const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSubmit, buttonText }
   const [priority, setPriority] = useState<Priority>(initialTask?.priority || "media");
   const [subtasks, setSubtasks] = useState<Task[]>(initialTask?.subtasks || []);
   const [subtaskTitle, setSubtaskTitle] = useState("");
+  const [editingSubtaskId, setEditingSubtaskId] = useState<number | null>(null);
 
   const handleSave = () => {
     if (title.trim() === "") {
@@ -31,25 +32,41 @@ const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSubmit, buttonText }
     onSubmit(task);
   };
 
-  const addSubtask = () => {
+  const addOrUpdateSubtask = () => {
     if (subtaskTitle.trim() === "") {
       Alert.alert("Error", "El título de la subtarea no puede estar vacío.");
       return;
     }
 
-    const newSubtask: Task = {
-      id: Date.now(),
-      title: subtaskTitle,
-      completed: false,
-      priority: "media",
-    };
+    if (editingSubtaskId !== null) {
+      // Actualizar subtarea existente
+      setSubtasks(
+        subtasks.map((subtask) =>
+          subtask.id === editingSubtaskId ? { ...subtask, title: subtaskTitle } : subtask
+        )
+      );
+      setEditingSubtaskId(null); // Reset edición
+    } else {
+      // Agregar nueva subtarea
+      const newSubtask: Task = {
+        id: Date.now(),
+        title: subtaskTitle,
+        completed: false,
+        priority: "media",
+      };
+      setSubtasks([...subtasks, newSubtask]);
+    }
 
-    setSubtasks([...subtasks, newSubtask]);
     setSubtaskTitle("");
   };
 
   const removeSubtask = (id: number) => {
-    setSubtasks(subtasks.filter(subtask => subtask.id !== id));
+    setSubtasks(subtasks.filter((subtask) => subtask.id !== id));
+  };
+
+  const editSubtask = (id: number, title: string) => {
+    setSubtaskTitle(title);
+    setEditingSubtaskId(id);
   };
 
   return (
@@ -78,8 +95,8 @@ const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSubmit, buttonText }
           value={subtaskTitle}
           onChangeText={setSubtaskTitle}
         />
-        <TouchableOpacity style={styles.addButton} onPress={addSubtask}>
-          <Text style={styles.addButtonText}>+</Text>
+        <TouchableOpacity style={styles.addButton} onPress={addOrUpdateSubtask}>
+          <Text style={styles.addButtonText}>{editingSubtaskId !== null ? "✔" : "+"}</Text>
         </TouchableOpacity>
       </View>
 
@@ -88,7 +105,9 @@ const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSubmit, buttonText }
         keyExtractor={(item) => item.id.toString()}
         renderItem={({ item }) => (
           <View style={styles.subtaskContainer}>
-            <Text>{item.title}</Text>
+            <TouchableOpacity onPress={() => editSubtask(item.id, item.title)}>
+              <Text style={styles.subtaskText}>{item.title}</Text>
+            </TouchableOpacity>
             <TouchableOpacity onPress={() => removeSubtask(item.id)}>
               <Text style={styles.removeText}>X</Text>
             </TouchableOpacity>
@@ -117,6 +136,7 @@ const styles = StyleSheet.create({
   addButton: { marginLeft: 10, padding: 10, backgroundColor: "#4CAF50", borderRadius: 5 },
   addButtonText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
   subtaskContainer: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 10, borderBottomWidth: 1 },
+  subtaskText: { fontSize: 16 },
   removeText: { color: "red", fontSize: 16, fontWeight: "bold" },
 });
 
