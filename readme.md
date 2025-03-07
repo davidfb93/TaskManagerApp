@@ -16,7 +16,10 @@ Para mejorar la experiencia del usuario y facilitar la visualización de las tar
 - **Media prioridad**: Naranja (#ffc300)
 - **Baja prioridad**: Verde (#31572c)
 
-![alt text](image-10.png)
+<img src="https://drive.google.com/file/d/1EgPnAS2GwXU-RUVyw0CLUaIILZHVoxJ-/view?usp=drive_link" width="200" height="200" />
+
+![alt text](https://drive.google.com/file/d/1EgPnAS2GwXU-RUVyw0CLUaIILZHVoxJ-/view?usp=drive_link)
+
 
 
 La prioridad se asigna de dos maneras:
