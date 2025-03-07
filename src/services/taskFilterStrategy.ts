@@ -24,6 +24,6 @@ export class LowPriorityFilter implements TaskFilterStrategy {
 
 export class NoFilter implements TaskFilterStrategy {
   filter(tasks: Task[]): Task[] {
-    return tasks; // No filtra nada
+    return tasks;
   }
 }

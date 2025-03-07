@@ -6,9 +6,10 @@ interface TaskFormProps {
   initialTask?: Task;
   onSubmit: (task: Task) => void;
   buttonText: string;
+  buttonColor?: string;
 }
 
-const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSubmit, buttonText }) => {
+const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSubmit, buttonText, buttonColor = "004b23"}) => {
   const [title, setTitle] = useState(initialTask?.title || "");
   const [priority, setPriority] = useState<Priority>(initialTask?.priority || "media");
   const [subtasks, setSubtasks] = useState<Task[]>(initialTask?.subtasks || []);
@@ -115,7 +116,9 @@ const TaskForm: React.FC<TaskFormProps> = ({ initialTask, onSubmit, buttonText }
         )}
       />
 
-      <TouchableOpacity style={styles.saveButton} onPress={handleSave}>
+      <TouchableOpacity 
+      style={[styles.saveButton, {backgroundColor: `#${buttonColor}`}] } 
+      onPress={handleSave}>
         <Text style={styles.saveButtonText}>{buttonText}</Text>
       </TouchableOpacity>
     </View>
@@ -133,7 +136,7 @@ const styles = StyleSheet.create({
   saveButton: { backgroundColor: "#4CAF50", padding: 12, borderRadius: 8, alignItems: "center" },
   saveButtonText: { fontSize: 16, fontWeight: "bold", color: "#fff" },
   subtaskInputContainer: { flexDirection: "row", alignItems: "center", marginBottom: 10 },
-  addButton: { marginLeft: 10, padding: 10, backgroundColor: "#4CAF50", borderRadius: 5 },
+  addButton: { marginLeft: 10, padding: 10, backgroundColor: "#004b23", borderRadius: 5 },
   addButtonText: { color: "#fff", fontSize: 18, fontWeight: "bold" },
   subtaskContainer: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", padding: 10, borderBottomWidth: 1 },
   subtaskText: { fontSize: 16 },

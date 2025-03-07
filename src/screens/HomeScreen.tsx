@@ -10,43 +10,35 @@ import {
 import { Picker } from "@react-native-picker/picker";
 import { NativeStackScreenProps } from "@react-navigation/native-stack";
 import { RootStackParamList } from "../navigation/AppNavigator";
-import { Task } from "../types/task";
-import { fetchTasks, priorityColors } from "../services/taskService";
+import { useTasks } from "../hooks/useTasks";
+import { priorityColors } from "../services/taskService";
+import {
+  NoFilter,
+  HighPriorityFilter,
+  MediumPriorityFilter,
+  LowPriorityFilter,
+  TaskFilterStrategy,
+} from "../services/taskFilterStrategy";
 
 type Props = NativeStackScreenProps<RootStackParamList, "Home">;
 
-// 🔹 Estrategias de filtrado (Patrón Strategy)
-const filterStrategies = {
-  all: (tasks: Task[]) => tasks,
-  alta: (tasks: Task[]) => tasks.filter((task) => task.priority === "alta"),
-  media: (tasks: Task[]) => tasks.filter((task) => task.priority === "media"),
-  baja: (tasks: Task[]) => tasks.filter((task) => task.priority === "baja"),
-};
+const filterOptions: { label: string; value: TaskFilterStrategy }[] = [
+  { label: "Todas", value: new NoFilter() },
+  { label: "Alta", value: new HighPriorityFilter() },
+  { label: "Media", value: new MediumPriorityFilter() },
+  { label: "Baja", value: new LowPriorityFilter() },
+];
 
 const HomeScreen: React.FC<Props> = ({ navigation }) => {
-  const [tasks, setTasks] = useState<Task[]>([]);
-  const [filter, setFilter] = useState<keyof typeof filterStrategies>("all");
+  const { tasks, addTask, editTask, deleteTask, loadTasks } = useTasks();
+  const [filterStrategy, setFilterStrategy] = useState<TaskFilterStrategy>(
+    new NoFilter()
+  );
   const fadeAnimations = useRef<{ [key: number]: Animated.Value }>({}).current;
 
   useEffect(() => {
-    const loadTasks = async () => {
-      const data = await fetchTasks();
-      setTasks(data);
-    };
     loadTasks();
   }, []);
-
-  const addTask = (newTask: Task) => {
-    setTasks([{ ...newTask }, ...tasks]);
-  };
-
-  const editTask = (updatedTask: Task) => {
-    setTasks(tasks.map((task) => (task.id === updatedTask.id ? updatedTask : task)));
-  };
-
-  const deleteTask = (id: number) => {
-    setTasks((prevTasks) => prevTasks.filter((task) => task.id !== id));
-  };
 
   const handleDelete = (id: number) => {
     if (!fadeAnimations[id]) return;
@@ -60,23 +52,20 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
     });
   };
 
-  // 🔹 Aplicar filtro de tareas
-  const filteredTasks = filterStrategies[filter](tasks);
+  const filteredTasks = filterStrategy.filter(tasks);
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Lista de Tareas</Text>
 
-      {/* 🔹 Selector de prioridad */}
       <Picker
-        selectedValue={filter}
-        onValueChange={(value) => setFilter(value)}
+        selectedValue={filterStrategy}
+        onValueChange={(value) => setFilterStrategy(value)}
         style={styles.picker}
       >
-        <Picker.Item label="Todas" value="all" />
-        <Picker.Item label="Alta" value="alta" />
-        <Picker.Item label="Media" value="media" />
-        <Picker.Item label="Baja" value="baja" />
+        {filterOptions.map((option, index) => (
+          <Picker.Item key={index} label={option.label} value={option.value} />
+        ))}
       </Picker>
 
       <FlatList
@@ -91,7 +80,10 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
             <Animated.View
               style={[
                 styles.taskContainer,
-                { backgroundColor: priorityColors[item.priority], opacity: fadeAnimations[item.id] },
+                {
+                  backgroundColor: priorityColors[item.priority],
+                  opacity: fadeAnimations[item.id],
+                },
               ]}
             >
               <View style={styles.taskContent}>
@@ -109,8 +101,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
               <View style={styles.buttonsContainer}>
                 <TouchableOpacity
                   onPress={() =>
-                    navigation.navigate("EditTask", { task: item, editTask })
-                  }
+                    navigation.navigate("EditTask", { task: item, editTask })}
                   style={styles.editButton}
                 >
                   <Text style={styles.editText}>✏️</Text>
@@ -130,7 +121,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate("AddTask", { addTask })}
+        onPress={() => navigation.navigate("AddTask", { addTask })} // ✅ No pasamos `addTask` como param
       >
         <Text style={styles.addButtonText}>➕ Agregar Tarea</Text>
       </TouchableOpacity>
