@@ -5,5 +5,6 @@ export interface Task {
     title: string;
     completed?: boolean;
     priority: Priority;
-    subtasks?: Task[]; // Implementacion patron de diseño
+    subtasks?: Task[]; // Implementacion patron de diseño, para generar subtareas
 }
+

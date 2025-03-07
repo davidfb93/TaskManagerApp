@@ -1,13 +1,13 @@
 import { Task, Priority } from "../types/task";
 
-// 🔹 Colores por prioridad para la UI
+// Colores por prioridad
 export const priorityColors: Record<Priority, string> = {
   alta: "#c1121f", // Rojo
   media: "#ffc300", // Naranja
   baja: "#31572c", // Verde
 };
 
-// 🔹 Función para obtener una prioridad aleatoria
+// Función para obtener una prioridad aleatoria
 export const getRandomPriority = (): Priority => {
   const priorities: Priority[] = ["alta", "media", "baja"];
   return priorities[Math.floor(Math.random() * priorities.length)];
@@ -31,7 +31,7 @@ export const fetchTasks = async (): Promise<Task[]> => {
   }
 };
 
-// 🔹 Agregar una nueva tarea (API)
+// Agregar una nueva tarea (API)
 export const createTask = async (task: Task): Promise<Task | null> => {
   try {
     const response = await fetch("https://jsonplaceholder.typicode.com/posts", {
@@ -52,7 +52,7 @@ export const createTask = async (task: Task): Promise<Task | null> => {
   }
 };
 
-// 🔹 Editar una tarea en la API (No funcional en JSONPlaceholder, solo ejemplo)
+// Editar una tarea en la API (No funcional en JSONPlaceholder, solo ejemplo)
 export const updateTask = async (updatedTask: Task): Promise<Task | null> => {
   try {
     const response = await fetch(`https://jsonplaceholder.typicode.com/posts/${updatedTask.id}`, {

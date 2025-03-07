@@ -121,7 +121,7 @@ const HomeScreen: React.FC<Props> = ({ navigation }) => {
 
       <TouchableOpacity
         style={styles.addButton}
-        onPress={() => navigation.navigate("AddTask", { addTask })} // ✅ No pasamos `addTask` como param
+        onPress={() => navigation.navigate("AddTask", { addTask })}
       >
         <Text style={styles.addButtonText}>➕ Agregar Tarea</Text>
       </TouchableOpacity>
